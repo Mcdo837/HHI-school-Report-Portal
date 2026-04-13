@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Center</title>
+    <link rel="stylesheet" href="control.css">
+</head>
+
+<body>
+    <div class="password-form">
+        <center>
+        <h2>Enter Admin Password To continue</h2>
+        <input class="pass" type="password" id="password" placeholder="password">
+        </center>
+    </div>
+<div class="everything">
+    <div class="links">
+        <a href="class.html">View Results</a>
+    </div>
+<div class="control-container">
+
+<h2>Create Exam</h2>
+
+<input class="input" id="exam-name" placeholder="Exam Name">
+<select id="exam-type">
+    <option value="junior">Junior</option>
+    <option value="senior">Senior</option>
+</select>
+
+<button id="create-exam">Create Exam</button>
+
+<hr>
+
+<h3>Select Exam</h3>
+<select id="exam-select"></select>
+
+<hr>
+
+<h3>Add Student</h3>
+
+<input class="input" id="student-name" placeholder="Student Name">
+<input class="input" id="subject-name" placeholder="Subject">
+<input id="marks" type="number" placeholder="Marks">
+
+<button id="add-subject">Add Subject</button>
+<button id="save-student">Save Student</button>
+
+<div id="subject-list"></div>
+
+<hr>
+
+<h2>EXAM PREVIEW</h2>
+<div id="exam-preview"></div>
+
+</div>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    doc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyAhF7_PcrZWtHi2cB3TWHe13nzLUz19rzY",
+  authDomain: "hhi-report-manager.firebaseapp.com",
+  projectId: "hhi-report-manager",
+  storageBucket: "hhi-report-manager.firebasestorage.app",
+  messagingSenderId: "82070210698",
+  appId: "1:82070210698:web:7082b1bea40170ddfa4573",
+  measurementId: "G-GBPXY120BM"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+// ================= STATE =================
+let exams = [];
+let tempSubjects = [];
+
+
+// ================= POINT SYSTEM =================
+function getPoints(mark) {
+    if (mark >= 90) return 1;
+    if (mark >= 80) return 2;
+    if (mark >= 70) return 3;
+    if (mark >= 60) return 4;
+    if (mark >= 50) return 5;
+    if (mark >= 40) return 6;
+    return 7;
+}
+
+
+// ================= CREATE EXAM =================
+document.getElementById("create-exam").onclick = async () => {
+
+    const examName = document.getElementById("exam-name").value;
+    const examType = document.getElementById("exam-type").value;
+
+    if (!examName) return alert("Enter exam name");
+
+    await addDoc(collection(db, "exams"), {
+        examName,
+        examType,
+        students: []
+    });
+
+    loadExams();
+    document.getElementById("exam-name").value = "";
+};
+
+
+// ================= LOAD EXAMS =================
+async function loadExams() {
+
+    const snap = await getDocs(collection(db, "exams"));
+
+    exams = [];
+
+    const select = document.getElementById("exam-select");
+
+    select.innerHTML = "";
+
+    snap.forEach(d => {
+        const data = { id: d.id, ...d.data() };
+        exams.push(data);
+
+        select.innerHTML += `
+            <option value="${data.id}">
+                ${data.examName}
+            </option>
+        `;
+    });
+
+    renderPreview();
+}
+
+
+// ================= ADD SUBJECT =================
+document.getElementById("add-subject").onclick = () => {
+
+    const name = document.getElementById("subject-name").value;
+    const marks = Number(document.getElementById("marks").value);
+
+    if (!name || isNaN(marks)) return;
+
+    tempSubjects.push({ name, marks });
+
+    document.getElementById("subject-list").innerHTML =
+        tempSubjects.map(s => `<p>${s.name} - ${s.marks}</p>`).join("");
+        document.getElementById("subject-name").value = "";
+        document.getElementById("marks").value = "";
+};
+
+
+// ================= SAVE STUDENT =================
+document.getElementById("save-student").onclick = async () => {
+
+    const selectedExamId = document.getElementById("exam-select").value;
+
+    if (!selectedExamId) return alert("Select exam first");
+
+    const studentName = document.getElementById("student-name").value;
+
+    if (!studentName || tempSubjects.length === 0) {
+        return alert("Enter student data");
+    }
+
+    const examRef = doc(db, "exams", selectedExamId);
+
+    const exam = exams.find(e => e.id === selectedExamId);
+
+    exam.students.push({
+        id: Date.now().toString(),
+        name: studentName,
+        subjects: [...tempSubjects]
+    });
+
+    calculateRanking(exam.students);
+
+    await updateDoc(examRef, {
+        students: exam.students
+    });
+
+    tempSubjects = [];
+    document.getElementById("student-name").value = "";
+    document.getElementById("subject-list").innerHTML = "";
+
+    loadExams();
+    document.getElementById("student-name").value = "";
+};
+
+
+// ================= RANKING =================
+function calculateRanking(students) {
+
+    students.forEach(s => {
+        s.score = s.subjects.reduce(
+            (sum, sub) => sum + getPoints(sub.marks),
+            0
+        );
+    });
+
+    students.sort((a, b) => a.score - b.score);
+
+    students.forEach((s, i) => {
+        s.position = i + 1;
+    });
+}
+
+
+// ================= DELETE STUDENT =================
+window.deleteStudent = async (examId, studentId) => {
+
+    const exam = exams.find(e => e.id === examId);
+
+    exam.students = exam.students.filter(s => s.id !== studentId);
+
+    calculateRanking(exam.students);
+
+    await updateDoc(doc(db, "exams", examId), {
+        students: exam.students
+    });
+
+    loadExams();
+};
+
+
+// ================= DELETE EXAM =================
+window.deleteExam = async (examId) => {
+
+    await deleteDoc(doc(db, "exams", examId));
+
+    loadExams();
+};
+
+
+// ================= PREVIEW =================
+function renderPreview() {
+
+    const preview = document.getElementById("exam-preview");
+    const selectedId = document.getElementById("exam-select").value;
+
+    preview.innerHTML = "";
+
+    const exam = exams.find(e => e.id === selectedId);
+
+    if (!exam) return;
+
+    // ===== EXAM HEADER + DELETE BUTTON =====
+    preview.innerHTML += `
+    <div style="display:flex; justify-content:space-evenly; flex-wrap:wrap; align-items:center;">
+        <h2>${exam.examName}</h2>
+    
+        <button onclick="deleteExam('${exam.id}')">
+            Delete Exam
+        </button>
+    </div>
+    `;
+
+    // ===== STUDENTS =====
+    (exam.students || []).forEach(student => {
+
+        let subjectsHTML = "";
+
+        student.subjects.forEach(s => {
+            subjectsHTML += `<p>${s.name} - ${s.marks}</p>`;
+        });
+
+        preview.innerHTML += `
+        <div style="border:1px solid #ccc; margin:10px; padding:10px;">
+            <h3>${student.name}</h3>
+
+            <p>Position: ${student.position || "-"}</p>
+
+            ${subjectsHTML}
+
+            <button onclick="deleteStudent('${exam.id}', '${student.id}')">
+                Delete Student
+            </button>
+        </div>
+        `;
+    });
+}
+
+
+// update preview when exam changes
+document.getElementById("exam-select").onchange = renderPreview;
+
+
+// init
+loadExams();
+//password encryption
+const password_input = document.getElementById("password");
+const password = "hhi1234";
+ password_input.addEventListener("input",()=>{
+    if(document.getElementById("password").value === password){
+        document.querySelector(".everything").style.display = "block";
+        document.querySelector(".password-form").style.display = "none";
+    }
+ })
+</script>
+
+</div>
+
+</body>
+</html>

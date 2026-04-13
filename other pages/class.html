@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Portal</title>
+    <link rel="stylesheet" href="class.css">
+</head>
+
+<body>
+<div class="links">
+    <a href="/index.html">Home</a>
+</div>
+<div class="class-container">
+
+<h1>Parent Portal</h1>
+
+<div class="form-section">
+    <h3>Select Exam</h3>
+    <select class="input" id="exam-select"></select>
+    <input class="input" id="search" placeholder="Search student name...">
+</div>
+
+<hr>
+
+<h2>Results</h2>
+<div id="results" class="results-grid"></div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+    getFirestore,
+    collection,
+    getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyAhF7_PcrZWtHi2cB3TWHe13nzLUz19rzY",
+  authDomain: "hhi-report-manager.firebaseapp.com",
+  projectId: "hhi-report-manager",
+  storageBucket: "hhi-report-manager.firebasestorage.app",
+  messagingSenderId: "82070210698",
+  appId: "1:82070210698:web:7082b1bea40170ddfa4573",
+  measurementId: "G-GBPXY120BM"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+// ================= STATE =================
+let exams = [];
+
+
+// ================= LOAD EXAMS =================
+async function loadExams() {
+
+    const snap = await getDocs(collection(db, "exams"));
+
+    const select = document.getElementById("exam-select");
+
+    exams = [];
+
+    select.innerHTML = "";
+
+    snap.forEach(docSnap => {
+
+        const data = { id: docSnap.id, ...docSnap.data() };
+
+        exams.push(data);
+
+        select.innerHTML += `
+            <option value="${data.id}">
+                ${data.examName}
+            </option>
+        `;
+    });
+
+    renderResults();
+}
+
+
+// ================= RENDER RESULTS =================
+function renderResults() {
+
+    const results = document.getElementById("results");
+
+    const selectedId = document.getElementById("exam-select").value;
+
+    const searchText = document.getElementById("search").value.toLowerCase();
+
+    results.innerHTML = "";
+
+    const exam = exams.find(e => e.id === selectedId);
+
+    if (!exam) return;
+
+    results.innerHTML += `<h2>${exam.examName}</h2>`;
+
+    (exam.students || [])
+        .filter(student =>
+            student.name.toLowerCase().includes(searchText)
+        )
+        .forEach(student => {
+
+            let subjectsHTML = "";
+
+            student.subjects.forEach(s => {
+                subjectsHTML += `
+                    <p>${s.name} - ${s.marks}</p>
+                `;
+            });
+
+            results.innerHTML += `
+            <div class="result-card">
+                <h3>${student.name}</h3>
+
+                <p><strong>Position:</strong> ${student.position || "-"}</p>
+
+                ${subjectsHTML}
+            </div>
+            `;
+        });
+}
+
+
+// ================= EVENTS =================
+document.getElementById("exam-select").onchange = renderResults;
+document.getElementById("search").oninput = renderResults;
+
+
+// ================= INIT =================
+loadExams();
+
+</script>
+
+</body>
+</html>

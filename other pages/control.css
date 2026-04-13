@@ -1,0 +1,315 @@
+/* ===== THEME COLORS ===== */
+:root {
+    --primary-white: #ffffff;
+    --light-blue: #add8e6;
+    --sky-blue: #87ceeb;
+    --dark-black: #000000;
+    --text-dark: #333333;
+    --border-light: #d3d3d3;
+}
+
+/* ===== BODY & GENERAL STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, var(--light-blue) 0%, var(--sky-blue) 100%);
+    color: var(--text-dark);
+    padding: 20px;
+    min-height: 100vh;
+}
+.links{
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.links a{
+    background-color: #87ceeb;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border-color: white;
+    border-style: solid;
+    text-decoration: none;
+}
+.pass{
+    width: 200px;
+    padding: 10px 20px;
+    background-color: transparent;
+    border: solid 2px white;
+    border-radius: 5px;
+}
+.pass::placeholder{
+    color: white;
+}
+.pass:focus{
+    outline: none;
+}
+.everything{
+    display: none;
+}
+/* ===== CONTAINER ===== */
+.control-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: var(--primary-white);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== HEADINGS ===== */
+h2 {
+    color: var(--dark-black);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 3px solid var(--sky-blue);
+}
+
+h3 {
+    color: var(--text-dark);
+    margin-top: 20px;
+    margin-bottom: 12px;
+    border-left: 4px solid var(--light-blue);
+    padding-left: 10px;
+}
+
+hr {
+    border: none;
+    height: 2px;
+    background: linear-gradient(90deg, var(--light-blue), var(--sky-blue), var(--light-blue));
+    margin: 20px 0;
+}
+
+/* ===== INPUT & SELECT STYLES ===== */
+.input{
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin: 8px 0;
+    border: 2px solid var(--light-blue);
+    border-radius: 5px;
+    font-size: 14px;
+    background: var(--primary-white);
+    color: var(--text-dark);
+    transition: all 0.3s ease;  
+}
+.input:focus{
+    outline: none;
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 8px rgba(135, 206, 235, 0.4);
+    background: rgba(173, 216, 230, 0.1);
+}
+input[type="text"],
+input[type="number"],
+select {
+    display: block;
+    width: 100%;
+    padding: 10px 12px;
+    margin: 8px 0;
+    border: 2px solid var(--light-blue);
+    border-radius: 5px;
+    font-size: 14px;
+    background: var(--primary-white);
+    color: var(--text-dark);
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--sky-blue);
+    box-shadow: 0 0 8px rgba(135, 206, 235, 0.4);
+    background: rgba(173, 216, 230, 0.1);
+}
+
+/* ===== BUTTON STYLES ===== */
+button {
+    padding: 10px 20px;
+    margin: 5px 5px 5px 0;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+/* Primary Button - Sky Blue */
+#create-exam,
+#add-subject,
+#save-student {
+    background: var(--sky-blue);
+    color: var(--dark-black);
+    border: 2px solid var(--sky-blue);
+}
+
+#create-exam:hover,
+#add-subject:hover,
+#save-student:hover {
+    background: #5ab0d8;
+    border-color: #5ab0d8;
+}
+
+/* Delete Buttons - Black with white text */
+button[onclick*="deleteExam"],
+button[onclick*="deleteStudent"] {
+    background: var(--dark-black);
+    color: var(--primary-white);
+    border: 2px solid var(--dark-black);
+}
+
+button[onclick*="deleteExam"]:hover,
+button[onclick*="deleteStudent"]:hover {
+    background: #222;
+    border-color: #222;
+}
+
+/* ===== SUBJECT LIST ===== */
+#subject-list {
+    background: rgba(173, 216, 230, 0.2);
+    padding: 12px;
+    border-radius: 5px;
+    border-left: 4px solid var(--sky-blue);
+    margin: 10px 0;
+}
+
+#subject-list p {
+    padding: 8px 0;
+    color: var(--text-dark);
+    border-bottom: 1px solid var(--light-blue);
+}
+
+#subject-list p:last-child {
+    border-bottom: none;
+}
+
+/* ===== EXAM PREVIEW ===== */
+#exam-preview {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 8px;
+}
+
+#exam-preview h2 {
+    color: var(--dark-black);
+    margin-bottom: 20px;
+}
+
+/* Student Card */
+#exam-preview > div {
+    background: linear-gradient(135deg, rgba(173, 216, 230, 0.1), rgba(135, 206, 235, 0.1));
+    border: 2px solid var(--light-blue);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+#exam-preview h3 {
+    color: var(--sky-blue);
+    margin-top: 0;
+}
+
+#exam-preview p {
+    color: var(--text-dark);
+    margin: 8px 0;
+}
+
+/* ===== SECTION WRAPPER ===== */
+.section {
+    background: rgba(173, 216, 230, 0.05);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 4px solid var(--sky-blue);
+}
+
+.add-students-container {
+    display: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 820px) {
+    body {
+        padding: 12px;
+    }
+
+    .control-container {
+        padding: 20px;
+        margin: 0 8px;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.1rem;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    .input,
+    button {
+        width: 100%;
+    }
+
+    button {
+        margin: 10px 0 0 0;
+    }
+
+    hr {
+        margin: 18px 0;
+    }
+
+    #subject-list,
+    #exam-preview {
+        padding: 14px;
+    }
+
+    #exam-preview > div {
+        margin: 12px 0;
+        padding: 14px;
+    }
+}
+
+@media (max-width: 520px) {
+    .control-container {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+    }
+
+    button {
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select,
+    .input {
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+}
