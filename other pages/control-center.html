@@ -202,15 +202,18 @@ document.getElementById("save-student").onclick = async () => {
 // ================= RANKING =================
 function calculateRanking(students) {
 
+    // calculate total marks
     students.forEach(s => {
-        s.score = s.subjects.reduce(
-            (sum, sub) => sum + getPoints(sub.marks),
+        s.total = s.subjects.reduce(
+            (sum, sub) => sum + sub.marks,
             0
         );
     });
 
-    students.sort((a, b) => a.score - b.score);
+    // sort by highest marks
+    students.sort((a, b) => b.total - a.total);
 
+    // assign positions
     students.forEach((s, i) => {
         s.position = i + 1;
     });
