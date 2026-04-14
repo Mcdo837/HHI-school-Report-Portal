@@ -202,7 +202,7 @@ document.getElementById("save-student").onclick = async () => {
 // ================= RANKING =================
 function calculateRanking(students) {
 
-    // calculate total marks
+    // STEP 1: calculate total marks
     students.forEach(s => {
         s.total = s.subjects.reduce(
             (sum, sub) => sum + sub.marks,
@@ -210,12 +210,19 @@ function calculateRanking(students) {
         );
     });
 
-    // sort by highest marks
+    // STEP 2: sort by highest marks
     students.sort((a, b) => b.total - a.total);
 
-    // assign positions
-    students.forEach((s, i) => {
-        s.position = i + 1;
+    // STEP 3: assign positions (DENSE RANKING)
+    let position = 1;
+
+    students.forEach((student, index) => {
+
+        if (index > 0 && student.total < students[index - 1].total) {
+            position++; // only increase when marks are lower
+        }
+
+        student.position = position;
     });
 }
 
